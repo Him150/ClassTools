@@ -69,7 +69,7 @@ export function BackupSettings() {
           color='primary'
           variant='flat'
           isLoading={isBackingUp}
-          onClick={() => handleBackup('https://hk.lukas1.eu.org/pastebin/api.php/edit/backup_dt', '主要备份')}>
+          onPress={() => handleBackup('https://web.lukas1.eu.org/pastebin/api.php/edit/backup_class_tools_main', '主要备份')}>
           备份
         </Button>
       </SettingsItem>
@@ -79,7 +79,7 @@ export function BackupSettings() {
           color='secondary'
           variant='flat'
           isLoading={isBackingUp}
-          onClick={() => handleBackup('https://hk.lukas1.eu.org/pastebin/api.php/edit/backup_dt2', '备用备份')}>
+          onPress={() => handleBackup('https://web.lukas1.eu.org/pastebin/api.php/edit/backup_class_tools_side', '备用备份')}>
           备份2
         </Button>
       </SettingsItem>
