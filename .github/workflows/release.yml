@@ -1,33 +1,73 @@
-name: Release Version
+name: Auto Release on Version Change
 
 on:
-  # workflow_dispatch:
   push:
-    tags:
-      - '*'
+    branches:
+      - main  # 只有推送或合并到主分支时触发
 
 jobs:
-  build:
+  check-and-release:
     runs-on: windows-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
 
+      # 1. 提取 package.json 中的版本号（不加 v）
+      - name: Get Version from package.json
+        id: pkg_version
+        run: |
+          $VERSION = node -p "require('./package.json').version"
+          echo "VERSION=$VERSION" >> $env:GITHUB_OUTPUT
+
+      # 2. 检查该 Tag 是否已存在
+      - name: Check if Tag exists
+        id: tag_check
+        shell: pwsh
+        run: |
+          $TAG = "${{ steps.pkg_version.outputs.VERSION }}"
+          # 检查远程是否已有此标签
+          $EXISTS = git ls-remote --tags origin $TAG
+          if ($EXISTS) {
+            echo "exists=true" >> $env:GITHUB_OUTPUT
+            echo "Tag $TAG already exists. Skipping release."
+          } else {
+            echo "exists=false" >> $env:GITHUB_OUTPUT
+          }
+
+      # 3. 如果 Tag 不存在，则自动创建并推送 Tag
+      - name: Create and Push Tag
+        if: steps.tag_check.outputs.exists == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag ${{ steps.pkg_version.outputs.VERSION }}
+          git push origin ${{ steps.pkg_version.outputs.VERSION }}
+
+      # --- 以下步骤仅在版本更新（Tag不存在）时执行 ---
+
       - name: Enable Corepack
+        if: steps.tag_check.outputs.exists == 'false'
         run: corepack enable
 
       - name: Install dependencies
+        if: steps.tag_check.outputs.exists == 'false'
         run: yarn install
 
       - name: Build
+        if: steps.tag_check.outputs.exists == 'false'
         run: yarn build
 
       - name: Generate Changelog
+        if: steps.tag_check.outputs.exists == 'false'
         id: changelog
         uses: mikepenz/release-changelog-builder-action@v5
         with:
@@ -36,25 +76,28 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub Release
+        if: steps.tag_check.outputs.exists == 'false'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
+          tag_name: ${{ steps.pkg_version.outputs.VERSION }}
+          name: ${{ steps.pkg_version.outputs.VERSION }}
           body: ${{ steps.changelog.outputs.changelog }}
           files: build/dist/latest.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload binaries to release
+        if: steps.tag_check.outputs.exists == 'false'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file_glob: true
           file: build/dist/*.exe*
-          tag: ${{ github.ref_name }}
+          tag: ${{ steps.pkg_version.outputs.VERSION }}
           overwrite: true
 
       - name: Upload latest.yml
+        if: steps.tag_check.outputs.exists == 'false'
         env:
-          TAG_NAME: ${{ github.ref_name }}
+          TAG_NAME: ${{ steps.pkg_version.outputs.VERSION }}
         run: node main/builders/upload-yml.js ${{ secrets.PUSH_TOKEN }}
