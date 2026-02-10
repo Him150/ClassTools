@@ -9,11 +9,11 @@ import {
   ModalHeader,
   useDisclosure,
 } from '@heroui/react';
-import { Calendar } from '@heroui/calendar';
+import { Calendar, DateValue } from '@heroui/calendar';
 import { useEffect, useState } from 'react';
 import * as lodash from 'lodash';
 import { getConfigSync } from '@renderer/features/p_function';
-import { CalendarDate, parseDate } from '@internationalized/date';
+import { parseDate } from '@internationalized/date';
 import { PlusIcon, ArrowRightIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { SettingsGroup, SettingsPage } from '@renderer/components/settings/SettingsGroup';
 import { I18nProvider } from '@react-aria/i18n';
@@ -95,8 +95,8 @@ export default function App() {
             <div className='flex flex-col items-center'>
               <span>原始日期</span>
               <Calendar
-                value={newFrom ? parseDate(newFrom.replaceAll('/', '-')) : undefined}
-                onChange={(date: CalendarDate) =>
+                value={newFrom ? (parseDate(newFrom.replaceAll('/', '-')) as any) : undefined}
+                onChange={(date: DateValue) =>
                   setNewFrom(`${date.year}/${String(date.month).padStart(2, '0')}/${String(date.day).padStart(2, '0')}`)
                 }
                 className='rounded-md border scrollbar-hide'
@@ -107,8 +107,8 @@ export default function App() {
             <div className='flex flex-col items-center'>
               <span>替换日期</span>
               <Calendar
-                value={newTo ? parseDate(newTo.replaceAll('/', '-')) : undefined}
-                onChange={(date: CalendarDate) =>
+                value={newTo ? (parseDate(newTo.replaceAll('/', '-')) as any) : undefined}
+                onChange={(date: DateValue) =>
                   setNewTo(`${date.year}/${String(date.month).padStart(2, '0')}/${String(date.day).padStart(2, '0')}`)
                 }
                 className='rounded-md border scrollbar-hide'
