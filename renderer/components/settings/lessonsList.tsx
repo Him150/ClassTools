@@ -212,7 +212,7 @@ export function LessonsListTime() {
     columnKey: null,
   });
 
-  const stringToTime = (value?: string) => {
+  const stringToTime = (value?: string): any => {
     if (!value) return null;
     const [h, m] = value.split(':').map(Number);
     return new Time(h, m);
