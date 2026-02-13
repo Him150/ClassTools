@@ -30,7 +30,7 @@ async function uploadYML(filePath) {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
-      x_replace: true,
+      x_replace: 'true',
       x_tag: tag,
       'Content-Type': 'application/octet-stream',
     },

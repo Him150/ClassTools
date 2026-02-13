@@ -2,7 +2,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import arg from 'arg';
 import chalk from 'chalk';
-import execa from 'execa';
+import { execa, Options as execaOptionsType } from 'execa';
 import * as logger from './logger';
 import { getNextronConfig } from './configs/getNextronConfig';
 import { useExportCommand } from './configs/useExportCommand';
@@ -24,17 +24,13 @@ const args = arg({
 const cwd = process.cwd();
 const appDir = path.join(cwd, 'build/app');
 const distDir = path.join(cwd, 'build/dist');
-const rendererSrcDir = getNextronConfig().rendererSrcDir || 'renderer';
-const execaOptions: execa.Options = {
+const execaOptions: execaOptionsType = {
   cwd,
   stdio: 'inherit',
-  env: {
-    ...process.env,
-    NODE_ENV: 'production',
-  },
 };
 
 (async () => {
+  const rendererSrcDir = (await getNextronConfig()).rendererSrcDir || 'renderer';
   // Ignore missing dependencies
   process.env.ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES = 'true';
 
@@ -43,20 +39,19 @@ const execaOptions: execa.Options = {
     await Promise.all([fs.remove(appDir), fs.remove(distDir)]);
 
     logger.info('Building renderer process');
-    await execa.execa('next', ['build', path.join(cwd, rendererSrcDir)], execaOptions);
+    await execa('next', ['build', path.join(cwd, rendererSrcDir)], execaOptions);
     if (await useExportCommand()) {
-      await execa.execa('next', ['export', '-o', appDir, path.join(cwd, rendererSrcDir)], execaOptions);
+      await execa('next', ['export', '-o', appDir, path.join(cwd, rendererSrcDir)], execaOptions);
     }
 
     logger.info('Building main process');
-    // await execa.execa('node', [path.join(__dirname, 'webpack.config.js')], execaOptions);
-    await execa.execa('ts-node', [path.join(__dirname, 'configs/webpack.config.production.ts')], execaOptions);
+    await execa('node', [path.join(__dirname, 'configs/webpack.config.production.js')], execaOptions);
 
     if (args['--no-pack']) {
       logger.info('Skip packaging...');
     } else {
       logger.info('Packaging - please wait a moment');
-      await execa.execa('electron-builder', createBuilderArgs(), execaOptions);
+      await execa('electron-builder', createBuilderArgs(), execaOptions);
     }
 
     logger.info('See `build/dist` directory');

@@ -1,9 +1,22 @@
-// File to generate the service worker.
-require('dotenv').config();
-const workboxBuild = require('workbox-build');
-const path = require('path');
-const fs = require('fs-extra');
+import { build } from 'esbuild';
+import { configDotenv } from 'dotenv';
+import workboxBuild from 'workbox-build';
+import path from 'path';
+import fs from 'fs-extra';
 const { NODE_ENV } = process.env;
+
+configDotenv();
+
+await build({
+  entryPoints: ['main/builders/**/*.ts'],
+  outdir: 'build/builders',
+  bundle: false,
+  platform: 'node',
+  format: 'cjs',
+  sourcemap: true,
+  outbase: 'main/builders',
+  tsconfig: 'tsconfig.json',
+});
 
 // https://developers.google.com/web/tools/workbox/reference-docs/latest/module-workbox-build#.generateSW
 const buildSW = () => {
@@ -54,10 +67,10 @@ const buildSW = () => {
 buildSW();
 
 // Add Build Time
-(async () => {
-  const dirPath = path.resolve(process.cwd(), 'renderer/public/buildArtifacts');
-  if (!fs.pathExistsSync(dirPath)) {
-    fs.mkdirsSync(dirPath);
-  }
-  fs.writeFileSync(path.resolve(dirPath, 'UIVersion'), Date.now().toString());
-})();
+const dirPath = path.resolve(process.cwd(), 'renderer/public/buildArtifacts');
+if (!fs.pathExistsSync(dirPath)) {
+  fs.mkdirsSync(dirPath);
+}
+fs.writeFileSync(path.resolve(dirPath, 'UIVersion'), Date.now().toString());
+
+console.log('✓ Build Success');

@@ -1,12 +1,11 @@
 import arg from 'arg';
-import execa from 'execa';
+import { execa, Options as execaOptionsType } from 'execa';
 import webpack from 'webpack';
 import * as logger from './logger';
 import { getNextronConfig } from './configs/getNextronConfig';
-import { config } from './configs/webpack.config.development';
+import { getConfig } from './configs/webpack.config.development';
 import { waitForPort } from 'get-port-please';
 import type { ChildProcess } from 'child_process';
-import treeKill from 'tree-kill';
 
 const args = arg({
   '--renderer-port': Number,
@@ -39,11 +38,7 @@ if (args['--inspect']) {
   process.exit(1);
 }
 
-const nextronConfig = getNextronConfig();
-
 const rendererPort = args['--renderer-port'] || 8888;
-const startupDelay = nextronConfig.startupDelay || args['--startup-delay'] || 10_000;
-
 let electronOptions = args['--electron-options'] || '';
 if (!electronOptions.includes('--remote-debugging-port')) {
   electronOptions += ' --remote-debugging-port=5858';
@@ -53,12 +48,15 @@ if (!electronOptions.includes('--inspect')) {
 }
 electronOptions = electronOptions.trim();
 
-const execaOptions: execa.Options = {
+const execaOptions: execaOptionsType = {
   cwd: process.cwd(),
   stdio: 'inherit',
 };
 
 (async () => {
+  const nextronConfig = await getNextronConfig();
+  const startupDelay = nextronConfig.startupDelay || args['--startup-delay'] || 10_000;
+
   let firstCompile = true;
   let watching: webpack.Watching;
   let mainProcess: ChildProcess;
@@ -66,44 +64,36 @@ const execaOptions: execa.Options = {
 
   const startMainProcess = () => {
     logger.info(`Run main process: electron . ${rendererPort} ${electronOptions}`);
-    mainProcess = execa.execa('electron', ['.', `${rendererPort}`, ...electronOptions.split(' ')], {
+    mainProcess = execa('electron', ['.', `${rendererPort}`, ...electronOptions.split(' ')], {
       // detached: true,
       ...execaOptions,
-      stdio: 'pipe',
-      encoding: 'utf8',
     });
-    mainProcess.stdout?.pipe(process.stdout);
-    mainProcess.stderr?.pipe(process.stderr);
     mainProcess.unref();
   };
 
   const startRendererProcess = () => {
     logger.info(`Run renderer process: next -p ${rendererPort} ${nextronConfig.rendererSrcDir || 'renderer'}`);
-    const child = execa.execa('next', ['-p', rendererPort, nextronConfig.rendererSrcDir || 'renderer'], execaOptions);
-    child.stdout?.pipe(process.stdout);
-    child.stderr?.pipe(process.stderr);
+    const child = execa(
+      'next',
+      ['-p', rendererPort.toString(), nextronConfig.rendererSrcDir || 'renderer'],
+      execaOptions,
+    );
     child.on('close', () => {
       process.exit(0);
     });
     return child;
   };
 
-  const killProcess = (proc?: ChildProcess) => {
-    if (!proc || !proc.pid) return;
-
-    treeKill(proc.pid, 'SIGTERM', err => {
-      if (err) {
-        console.error('Failed to kill process tree:', err);
-      }
-    });
-  };
   const killWholeProcess = () => {
     if (watching) {
       watching.close(() => {});
     }
-
-    killProcess(mainProcess);
-    killProcess(rendererProcess);
+    if (mainProcess) {
+      mainProcess.kill();
+    }
+    if (rendererProcess) {
+      rendererProcess.kill();
+    }
   };
 
   process.on('SIGINT', killWholeProcess);
@@ -121,6 +111,8 @@ const execaOptions: execa.Options = {
     killWholeProcess();
     process.exit(1);
   });
+
+  const config = await getConfig();
 
   // wait until main process is ready
   await new Promise<void>(resolve => {
