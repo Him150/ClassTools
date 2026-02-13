@@ -7,7 +7,6 @@
     "dev": "yarn build:prepare && node build/builders/nextron/nextron --run-only",
     "dev:web": "yarn build:prepare && next dev ./renderer",
     "build": "yarn build:prepare && node build/builders/nextron/nextron build",
-    "build:np": "yarn build:prepare && node build/builders/nextron/nextron build --no-pack",
     "build:web": "yarn build:prepare && next build ./renderer",
     "build:prepare": "node main/builders/build-prepare.mjs",
     "dev_": "yarn build:prepare && nextron --run-only",

@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import path from 'path';
+import fs from 'fs-extra';
 
 (async () => {
   const filePath = path.resolve('build/dist/latest.yml');
@@ -13,7 +13,7 @@ const path = require('path');
   }
 })();
 
-async function uploadYML(filePath) {
+async function uploadYML(filePath: string) {
   const fileContent = fs.readFileSync(filePath, 'utf-8');
 
   const tag = process.env.TAG_NAME;
@@ -21,7 +21,7 @@ async function uploadYML(filePath) {
 
   if (!tag || !token) {
     console.error('Missing TAG_NAME (env) or PUSH_TOKEN (arg)');
-    process.exit(1);
+    process.exit();
   }
 
   console.log(`📦 Uploading latest.yml with tag: ${tag}`);

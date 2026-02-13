@@ -100,4 +100,4 @@ jobs:
         if: steps.tag_check.outputs.exists == 'false'
         env:
           TAG_NAME: ${{ steps.pkg_version.outputs.VERSION }}
-        run: node main/builders/upload-yml.js ${{ secrets.PUSH_TOKEN }}
+        run: node build/builders/upload-yml.js ${{ secrets.PUSH_TOKEN }}
