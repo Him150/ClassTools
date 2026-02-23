@@ -61,7 +61,18 @@ contextMenu({
 // autoUpdater Debug
 autoUpdater.logger = console;
 autoUpdater.autoDownload = false;
-autoUpdater.disableDifferentialDownload = true;
+autoUpdater.autoInstallOnAppQuit = true;
+
+function isAutoCheckUpdateEnabled() {
+  const config = store.get('upgrade.autoCheckUpdate');
+  if (typeof config === 'boolean') return config;
+  return true;
+}
+function isAutoDownloadUpdateEnabled() {
+  const config = store.get('upgrade.autoDownloadUpdate');
+  if (typeof config === 'boolean') return config;
+  return true;
+}
 
 function getProviderPath(params: string) {
   if (isProd) {
@@ -182,7 +193,9 @@ function isWindows11() {
 
   if (isProd) {
     await mainWindow.loadURL(getProviderPath('/home'));
-    autoUpdater.checkForUpdates();
+    if (isAutoCheckUpdateEnabled()) {
+      autoUpdater.checkForUpdates();
+    }
   } else {
     await mainWindow.loadURL(getProviderPath('/home'));
   }
@@ -216,8 +229,18 @@ app.on('window-all-closed', () => {
 ipcMain.on('autoUpdater/checkForUpdates', () => {
   autoUpdater.checkForUpdates();
 });
+ipcMain.on('autoUpdater/debugMockUpdate', () => {
+  if (!mainWindow_g || mainWindow_g.isDestroyed()) return;
+  mainWindow_g.webContents.send('autoUpdater/update-available', {
+    version: `debug-${Date.now()}`,
+    files: [{ url: 'debug-mock-installer.exe', size: 42 * 1024 * 1024, sha512: 'debug-mock-sha512' }],
+  });
+});
 autoUpdater.on('update-available', info => {
   mainWindow_g.webContents.send('autoUpdater/update-available', info);
+  if (isAutoDownloadUpdateEnabled()) {
+    autoUpdater.downloadUpdate();
+  }
 });
 ipcMain.on('autoUpdater/downloadUpdate', () => {
   autoUpdater.downloadUpdate();
@@ -241,6 +264,12 @@ ipcMain.on('set-config', async (event, name: string, value: any) => {
   mainWindow_g.webContents.send('sync-config', name);
 
   switch (name) {
+    case 'upgrade.autoCheckUpdate':
+      if (isProd && value === true) {
+        autoUpdater.checkForUpdates();
+      }
+      break;
+
     case 'display.useWindowBackgroundMaterial':
       if (!isWindows11()) return;
       if (value === true) {

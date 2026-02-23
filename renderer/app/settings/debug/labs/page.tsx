@@ -12,7 +12,8 @@ import {
   AutocompleteItem,
 } from '@heroui/react';
 import { useEffect, useState } from 'react';
-import { getConfigSync, getAutoLaunchSync } from '@renderer/features/p_function';
+import { getConfigSync } from '@renderer/features/ipc/config';
+import { getAutoLaunchSync } from '@renderer/features/ipc/functions';
 import { SettingsPage, SettingsGroup, SettingsItem } from '@renderer/components/settings/SettingsGroup';
 import { ClockIcon, PhotoIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import WeatherSettings from '@renderer/components/settings/WeatherSettings';

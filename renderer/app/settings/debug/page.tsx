@@ -1,7 +1,8 @@
 'use client';
 import { Button, Divider } from '@heroui/react';
 import { useEffect, useState } from 'react';
-import { getVersionSync, formatSize, getSysInfoSync } from '@renderer/features/p_function';
+import { formatSize } from '@renderer/features/p_function';
+import { getVersionSync, getSysInfoSync } from '@renderer/features/ipc/functions';
 import { SettingsPage, SettingsGroup, SettingsItem } from '@renderer/components/settings/SettingsGroup';
 import dayjs from 'dayjs';
 
@@ -136,6 +137,14 @@ export default function App() {
         <Divider></Divider>
         <SettingsItem title='其他' justifyBetween={false}>
           <div className='flex gap-2 flex-wrap'>
+            <Button
+              color='primary'
+              variant='bordered'
+              onPress={() => {
+                window.ipc?.send('autoUpdater/debugMockUpdate');
+              }}>
+              测试更新（模拟）
+            </Button>
             <Button
               color='primary'
               variant='bordered'

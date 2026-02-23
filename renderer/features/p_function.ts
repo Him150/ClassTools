@@ -1,4 +1,5 @@
 'use client';
+import { getConfigSync } from '@renderer/features/ipc/config';
 import dayjs, { Dayjs } from 'dayjs';
 import _ from 'lodash';
 
@@ -69,7 +70,7 @@ export function listClassesForDay(classSchedule, day: string, isSingleWeek: bool
 */
 export async function getChangeDay(
   parse_out: boolean = true,
-  currentTime?: string | Dayjs | Date
+  currentTime?: string | Dayjs | Date,
 ): Promise<undefined | string | Dayjs> {
   const days_origin = (await getConfigSync('lessonsList.changeDay')) as string | undefined;
   if (!days_origin) return;
@@ -85,49 +86,6 @@ export async function getChangeDay(
       }
     }
   }
-}
-
-export async function getConfigSync(name?: string, timeout: number = 0, notReject: boolean = true): Promise<any> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let timer =
-        timeout <= 0
-          ? null
-          : setTimeout(() => {
-              reject(`timeout (${timeout} ms)`);
-            }, timeout);
-      const data = await window.ipc.invoke('get-config', name);
-      clearTimeout(timer);
-      resolve(data);
-    } catch (error) {
-      if (notReject) {
-        resolve(undefined);
-      } else {
-        reject(error);
-      }
-    }
-  });
-}
-export async function getVersionSync(timeout: number = 0, notReject: boolean = true): Promise<string | undefined> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let timer =
-        timeout <= 0
-          ? null
-          : setTimeout(() => {
-              reject(`timeout (${timeout} ms)`);
-            }, timeout);
-      const data = await window.ipc.invoke('get-version', name);
-      clearTimeout(timer);
-      resolve(data);
-    } catch (error) {
-      if (notReject) {
-        resolve(undefined);
-      } else {
-        reject(error);
-      }
-    }
-  });
 }
 
 export async function generateConfig() {
@@ -273,41 +231,4 @@ export function formatSize(bytes: number) {
   let size: any = autoUnitSize(bytes);
   size = Math.trunc(size.dataSize * 100) / 100 + ' ' + size.dataUnit;
   return size;
-}
-
-export async function getAutoLaunchSync(timeout: number = 0): Promise<boolean> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let timer =
-        timeout <= 0
-          ? null
-          : setTimeout(() => {
-              reject(`timeout (${timeout} ms)`);
-            }, timeout);
-      const data = await window.ipc.invoke('autoLaunch', 'get');
-      clearTimeout(timer);
-      resolve(data);
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
-
-export async function getSysInfoSync(action: any, timeout: number = 30 * 1000): Promise<boolean> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let timer =
-        timeout <= 0
-          ? null
-          : setTimeout(() => {
-              reject(`timeout (${timeout} ms)`);
-            }, timeout);
-
-      const data = await window.ipc.invoke('systeminformation', action);
-      clearTimeout(timer);
-      resolve(data);
-    } catch (error) {
-      reject(error);
-    }
-  });
 }

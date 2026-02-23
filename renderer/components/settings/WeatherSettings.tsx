@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Switch, Autocomplete, AutocompleteItem } from '@heroui/react';
 import { SettingsGroup, SettingsItem } from '@renderer/components/settings/SettingsGroup';
-import { getConfigSync } from '@renderer/features/p_function';
+import { getConfigSync } from '@renderer/features/ipc/config';
 import { fetchCityList } from '@renderer/features/weather/xiaomiWeather';
 import { MapPinIcon } from '@heroicons/react/24/outline';
 
@@ -18,7 +18,7 @@ export default function App() {
     (async () => {
       const weatherEnabled = await getConfigSync('features.weather.enable');
       weatherEnabled && setUseWeather(Boolean(weatherEnabled));
-      const showWeatherFeelslike = await getConfigSync('features.weather.showFeelslike');
+      const showWeatherFeelslike = (await getConfigSync('features.weather.showFeelslike')) ?? true;
       showWeatherFeelslike && setShowWeatherFeelslike(Boolean(showWeatherFeelslike));
 
       const savedLocationKey = await getConfigSync('features.weather.locationKey');

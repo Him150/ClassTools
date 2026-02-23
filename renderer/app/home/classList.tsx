@@ -7,7 +7,6 @@ import {
   getWeekNumber,
   getWeekDate,
   listClassesForDay,
-  getConfigSync,
 } from '@renderer/features/p_function';
 
 export default function ClassList({

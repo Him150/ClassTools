@@ -12,7 +12,7 @@ import {
 import { Calendar, DateValue } from '@heroui/calendar';
 import { useEffect, useState } from 'react';
 import * as lodash from 'lodash';
-import { getConfigSync } from '@renderer/features/p_function';
+import { getConfigSync } from '@renderer/features/ipc/config';
 import { parseDate } from '@internationalized/date';
 import { PlusIcon, ArrowRightIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { SettingsGroup, SettingsPage } from '@renderer/components/settings/SettingsGroup';

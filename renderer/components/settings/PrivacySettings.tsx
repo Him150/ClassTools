@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Switch, Button } from '@heroui/react';
 import { SettingsGroup, SettingsItem } from './SettingsGroup';
-import { getConfigSync } from '@renderer/features/p_function';
+import { getConfigSync } from '@renderer/features/ipc/config';
 import { ShieldCheckIcon, CloudArrowUpIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
 

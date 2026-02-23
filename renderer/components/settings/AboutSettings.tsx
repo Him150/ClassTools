@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { SettingsGroup, SettingsItem } from './SettingsGroup';
 import { CodeBracketIcon, InformationCircleIcon, UserCircleIcon } from '@heroicons/react/24/outline';
-import { getVersionSync } from '@renderer/features/p_function';
+import { getVersionSync } from '@renderer/features/ipc/functions';
 import dayjs from 'dayjs';
 
 export function AboutSettings() {

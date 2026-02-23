@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Switch, Slider, Autocomplete, AutocompleteItem, Tooltip } from '@heroui/react';
 import { SettingsGroup, SettingsItem } from './SettingsGroup';
-import { getConfigSync } from '@renderer/features/p_function';
+import { getConfigSync } from '@renderer/features/ipc/config';
 import { WindowIcon, PaintBrushIcon, CloudIcon, EyeIcon } from '@heroicons/react/24/outline';
 
 export function WindowSettings() {
@@ -169,11 +169,23 @@ export function AppearanceSettings() {
 
 export function UpgradeSettings() {
   const [online, setOnline] = useState(false);
+  const [autoCheckUpdate, setAutoCheckUpdate] = useState(true);
+  const [autoDownloadUpdate, setAutoDownloadUpdate] = useState(true);
 
   useEffect(() => {
     (async () => {
       const data = await getConfigSync('online');
       data && setOnline(Boolean(data));
+
+      const autoCheckData = await getConfigSync('upgrade.autoCheckUpdate');
+      if (typeof autoCheckData === 'boolean') {
+        setAutoCheckUpdate(autoCheckData);
+      }
+
+      const autoDownloadData = await getConfigSync('upgrade.autoDownloadUpdate');
+      if (typeof autoDownloadData === 'boolean') {
+        setAutoDownloadUpdate(autoDownloadData);
+      }
     })();
   }, []);
 
@@ -195,8 +207,26 @@ export function UpgradeSettings() {
         />
       </SettingsItem>
 
-      <SettingsItem title='自动检查更新' description='自动检查并通知可用的应用更新' disabled>
-        <Switch isDisabled isSelected={true} />
+      <SettingsItem title='检查更新' description='自动检查并通知可用的应用更新'>
+        <Switch
+          isSelected={autoCheckUpdate}
+          onChange={() => {
+            const newValue = !autoCheckUpdate;
+            setAutoCheckUpdate(newValue);
+            window.ipc?.send('set-config', 'upgrade.autoCheckUpdate', newValue);
+          }}
+        />
+      </SettingsItem>
+
+      <SettingsItem title='自动下载更新' description='检测到新版本后在后台自动下载更新包'>
+        <Switch
+          isSelected={autoDownloadUpdate}
+          onChange={() => {
+            const newValue = !autoDownloadUpdate;
+            setAutoDownloadUpdate(newValue);
+            window.ipc?.send('set-config', 'upgrade.autoDownloadUpdate', newValue);
+          }}
+        />
       </SettingsItem>
     </SettingsGroup>
   );

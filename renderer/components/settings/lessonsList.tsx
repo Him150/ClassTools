@@ -23,7 +23,7 @@ import {
 import { Time } from '@internationalized/date';
 
 import { OverlayScrollbars } from 'overlayscrollbars';
-import { getConfigSync } from '@renderer/features/p_function';
+import { getConfigSync } from '@renderer/features/ipc/config';
 
 const columns = [
   {

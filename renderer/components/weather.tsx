@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Skeleton, Image } from '@heroui/react';
-import { getConfigSync } from '@renderer/features/p_function';
+import { getConfigSync } from '@renderer/features/ipc/config';
 import { getXiaomiWeatherName, getXiaomiWeatherIcon, timeIsNight } from '@renderer/features/weather/convertor';
 import { fetchTotalWeather } from '@renderer/features/weather/xiaomiWeather';
 import { WeatherData } from '@renderer/features/weather/xiaomiWeatherTypes';
@@ -17,13 +17,16 @@ export function Weather() {
     (async () => {
       const useWeather = (await getConfigSync('features.weather.enable')) ?? false;
       setEnabled(Boolean(useWeather));
-
-      const showWeatherFeelslike = (await getConfigSync('features.weather.showFeelslike')) ?? true;
-      setShowFeelslike(Boolean(showWeatherFeelslike));
-
       if (!Boolean(useWeather)) return;
 
       const fetchWeather = async (force = false) => {
+        const useWeather = (await getConfigSync('features.weather.enable')) ?? false;
+        setEnabled(Boolean(useWeather));
+        if (!Boolean(useWeather)) return;
+
+        const showWeatherFeelslike = (await getConfigSync('features.weather.showFeelslike')) ?? true;
+        setShowFeelslike(Boolean(showWeatherFeelslike));
+
         let requestLocation = (await getConfigSync('features.weather.locationKey')) ?? 'weathercn:101010100';
 
         try {
@@ -64,7 +67,7 @@ export function Weather() {
       };
 
       fetchWeather();
-      timer = setInterval(() => fetchWeather(), 10 * 1000);
+      timer = setInterval(() => fetchWeather(), 5000);
     })();
 
     return () => timer && clearInterval(timer);
