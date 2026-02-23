@@ -24,7 +24,8 @@ import {
 import UpdateModal from './updateModal';
 import ClassList from './classList';
 import { Weather } from '@renderer/components/weather';
-import { generateConfig, getConfigSync } from '@renderer/features/p_function';
+import { getConfigSync } from '@renderer/features/ipc/config';
+import { generateConfig } from '@renderer/features/p_function';
 import { reducer, initialState as reducerInitialState } from './reducer';
 
 export default function HomePage() {
@@ -404,7 +405,9 @@ function MainContent({ onShutdownModalOpen }) {
           className='h-6 w-6 flex items-center justify-center'>
           <ArrowUturnLeftIcon className='w-4 h-4 text-gray-900 dark:text-gray-100'></ArrowUturnLeftIcon>
         </Button>
-        <span className={`text-sm w-full select-none ${state.display.hiddenControlBar || '[app-region:drag]'}`}>Class Tools</span>
+        <span className={`text-sm w-full select-none ${state.display.hiddenControlBar || '[app-region:drag]'}`}>
+          Class Tools
+        </span>
       </div>
 
       {/* Main Content */}
