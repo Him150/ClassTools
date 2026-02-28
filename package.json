@@ -1,7 +1,7 @@
 {
   "name": "class-tools",
   "author": "Lukas",
-  "version": "1.4.7",
+  "version": "1.4.8",
   "main": "build/app/background.js",
   "scripts": {
     "dev": "yarn build:prepare && node build/builders/nextron/nextron --run-only",
