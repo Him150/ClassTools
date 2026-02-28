@@ -12,7 +12,7 @@ import {
   AutocompleteItem,
 } from '@heroui/react';
 import { useEffect, useState } from 'react';
-import { getConfigSync } from '@renderer/features/ipc/config';
+import { getConfigSync, setConfigSync } from '@renderer/features/ipc/config';
 import { getAutoLaunchSync } from '@renderer/features/ipc/functions';
 import { SettingsPage, SettingsGroup, SettingsItem } from '@renderer/components/settings/SettingsGroup';
 import { ClockIcon, PhotoIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
@@ -38,9 +38,9 @@ export default function App() {
       } catch (error) {
         setAutoLaunchE('Failed Found');
       }
-      const openHotspot = await getConfigSync('main.startAction.openHotspot');
+      const openHotspot = await getConfigSync('features.startActions.openHotspot');
       openHotspot && setStartAction_openHotspot(Boolean(openHotspot));
-      const openHotspotDelay = await getConfigSync('main.startAction.openHotspotDelay');
+      const openHotspotDelay = await getConfigSync('features.startActions.openHotspotDelay');
       openHotspotDelay && setStartAction_openHotspotDelay(openHotspotDelay);
     })();
   }, []);
@@ -66,7 +66,7 @@ export default function App() {
       const json = await res.json();
       const games = json?.data?.games?.map((g: any) => ({ id: g.id, name: g.display?.name })) ?? [];
       setGameList(games);
-      window.ipc?.send('set-config', 'display.background.gameList', games);
+      setConfigSync('display.background.gameList', games);
     } catch (err) {
       console.error('Failed to fetch game list:', err);
     } finally {
@@ -92,7 +92,7 @@ export default function App() {
             isSelected={startAction_openHotspot}
             onChange={() => {
               setStartAction_openHotspot(!startAction_openHotspot);
-              window.ipc?.send('set-config', 'main.startAction.openHotspot', !startAction_openHotspot);
+              setConfigSync('features.startActions.openHotspot', !startAction_openHotspot);
             }}
           />
         </SettingsItem>
@@ -107,7 +107,7 @@ export default function App() {
               setStartAction_openHotspotDelay(e.target.value);
               const value = parseInt(e.target.value, 10) || 0;
               if (value >= Number(e.target.min) && value <= Number(e.target.max)) {
-                window.ipc?.send('set-config', 'main.startAction.openHotspotDelay', value);
+                setConfigSync('features.startActions.openHotspotDelay', value);
               }
             }}
           />
@@ -121,7 +121,7 @@ export default function App() {
             onChange={() => {
               const newValue = !useGameBgs;
               setUseGameBgs(newValue);
-              window.ipc?.send('set-config', 'display.background.useGameBgs', newValue);
+              setConfigSync('display.background.useGameBgs', newValue);
             }}
           />
         </SettingsItem>
@@ -141,7 +141,7 @@ export default function App() {
                     selectionMode='single'
                     onAction={key => {
                       setSelectedGame(String(key));
-                      window.ipc?.send('set-config', 'display.background.useGame', String(key));
+                      setConfigSync('display.background.useGame', String(key));
                     }}>
                     {gameList.length > 0 ? (
                       gameList.map(game => <DropdownItem key={game.id}>{game.name}</DropdownItem>)
@@ -165,7 +165,7 @@ export default function App() {
                 selectedKey={allowGameBgsType}
                 onSelectionChange={(value: string) => {
                   setAllowGameBgsType(value);
-                  window.ipc?.send('set-config', 'display.background.useGameBgsAllowType', value);
+                  setConfigSync('display.background.useGameBgsAllowType', value);
                 }}>
                 {item => <AutocompleteItem key={item.key}>{item.label}</AutocompleteItem>}
               </Autocomplete>

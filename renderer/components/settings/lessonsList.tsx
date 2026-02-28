@@ -23,7 +23,7 @@ import {
 import { Time } from '@internationalized/date';
 
 import { OverlayScrollbars } from 'overlayscrollbars';
-import { getConfigSync } from '@renderer/features/ipc/config';
+import { getConfigSync, setConfigSync } from '@renderer/features/ipc/config';
 
 const columns = [
   {
@@ -186,7 +186,7 @@ export function LessonsListName() {
                 }
                 new_rows = new_rows.filter(value => value != undefined);
                 new_rows.push({});
-                window.ipc?.send('set-config', 'lessonsList.name', new_rows);
+                setConfigSync('lessonsList.name', new_rows);
                 setRows(new_rows);
               }}
             />
@@ -257,7 +257,7 @@ export function LessonsListTime() {
           className='max-w-xs'
           value={weekStart}
           onChange={e => {
-            window.ipc?.send('set-config', 'lessonsList.weekStart', e.target.value);
+            setConfigSync('lessonsList.weekStart', e.target.value);
             setWeekStart(e.target.value);
           }}></Input>
         <div>
@@ -311,7 +311,7 @@ export function LessonsListTime() {
                       new_rows = new_rows.filter(v => v != undefined);
                       new_rows.push({});
 
-                      window.ipc?.send('set-config', 'lessonsList.time', new_rows);
+                      setConfigSync('lessonsList.time', new_rows);
                       setRows(new_rows);
                     }}
                   />
@@ -347,7 +347,7 @@ export function LessonsListTime() {
                       new_rows = new_rows.filter(v => v != undefined);
                       new_rows.push({});
 
-                      window.ipc?.send('set-config', 'lessonsList.time', new_rows);
+                      setConfigSync('lessonsList.time', new_rows);
                       setRows(new_rows);
                     }}
                   />
@@ -379,7 +379,7 @@ export function LessonsListTime() {
                             break;
                         }
 
-                        window.ipc?.send('set-config', 'lessonsList.time', new_rows);
+                        setConfigSync('lessonsList.time', new_rows);
                         setRows(new_rows);
                         setContextMenu(prev => ({ ...prev, open: false }));
                       }}>
@@ -421,7 +421,7 @@ export function LessonsListTime() {
                         rows_.push(element_);
                       }
                     }
-                    window.ipc?.send('set-config', 'lessonsList.time', rows_);
+                    setConfigSync('lessonsList.time', rows_);
                     setRows(rows_);
                   }}>
                   从旧版数据格式迁移
@@ -450,7 +450,7 @@ export function LessonsListTime() {
                         rows_.push(element_);
                       }
                     }
-                    window.ipc?.send('set-config', 'lessonsList.time', rows_);
+                    setConfigSync('lessonsList.time', rows_);
                     setRows(rows_);
                   }}>
                   迁移到旧版数据格式(会丢失分隔符)

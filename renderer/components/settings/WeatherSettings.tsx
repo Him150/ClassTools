@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Switch, Autocomplete, AutocompleteItem } from '@heroui/react';
 import { SettingsGroup, SettingsItem } from '@renderer/components/settings/SettingsGroup';
-import { getConfigSync } from '@renderer/features/ipc/config';
+import { getConfigSync, setConfigSync } from '@renderer/features/ipc/config';
 import { fetchCityList } from '@renderer/features/weather/xiaomiWeather';
 import { MapPinIcon } from '@heroicons/react/24/outline';
 
@@ -54,7 +54,7 @@ export default function App() {
           onChange={() => {
             const newValue = !useWeather;
             setUseWeather(newValue);
-            window.ipc?.send('set-config', 'features.weather.enable', newValue);
+            setConfigSync('features.weather.enable', newValue);
           }}
         />
       </SettingsItem>
@@ -69,8 +69,8 @@ export default function App() {
                 const selected = cityList.find(c => c.key === key);
                 if (selected) {
                   setLocation(selected);
-                  window.ipc?.send('set-config', 'features.weather.locationKey', selected.key);
-                  window.ipc?.send('set-config', 'features.weather.locationLabel', selected.label);
+                  setConfigSync('features.weather.locationKey', selected.key);
+                  setConfigSync('features.weather.locationLabel', selected.label);
                 }
               }}
               onInputChange={query => {
@@ -90,7 +90,7 @@ export default function App() {
               onChange={() => {
                 const newValue = !showWeatherFeelslike;
                 setShowWeatherFeelslike(newValue);
-                window.ipc?.send('set-config', 'features.weather.showFeelslike', newValue);
+                setConfigSync('features.weather.showFeelslike', newValue);
               }}
             />
           </SettingsItem>

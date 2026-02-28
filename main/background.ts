@@ -76,7 +76,7 @@ function isAutoDownloadUpdateEnabled() {
 
 function getProviderPath(params: string) {
   if (isProd) {
-    if (store.get('online')) return `https://class-tools.mise.run.place${params}`;
+    if (store.get('useOnlineVersion')) return `https://class-tools.mise.run.place${params}`;
     return `app://-${params}`;
   } else {
     const port = process.argv[2];
@@ -208,9 +208,9 @@ function isWindows11() {
 
   // App Custom Start Action
   try {
-    if (store.get('main.startAction.openHotspot')) {
+    if (store.get('features.startActions.openHotspot')) {
       if (os.platform() === 'win32' && parseInt(os.release().split('.')[0]) >= 10) {
-        const delaySec = Number(store.get('main.startAction.openHotspotDelay') || 0);
+        const delaySec = Number(store.get('features.startActions.openHotspotDelay') || 0);
         setTimeout(() => {
           runHotspotScript();
         }, delaySec * 1000);

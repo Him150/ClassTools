@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Switch, Slider, Autocomplete, AutocompleteItem, Tooltip } from '@heroui/react';
 import { SettingsGroup, SettingsItem } from './SettingsGroup';
-import { getConfigSync } from '@renderer/features/ipc/config';
+import { getConfigSync, setConfigSync } from '@renderer/features/ipc/config';
 import { WindowIcon, PaintBrushIcon, CloudIcon, EyeIcon } from '@heroicons/react/24/outline';
 
 export function WindowSettings() {
@@ -37,7 +37,7 @@ export function WindowSettings() {
             value={windowWidth}
             onChange={(value: number) => {
               setWindowWidth(value);
-              window.ipc?.send('set-config', 'display.windowWidth', value);
+              setConfigSync('display.windowWidth', value);
             }}
           />
         </div>
@@ -52,7 +52,7 @@ export function WindowSettings() {
             value={windowHeight}
             onChange={(value: number) => {
               setWindowHeight(value);
-              window.ipc?.send('set-config', 'display.windowHeight', value);
+              setConfigSync('display.windowHeight', value);
             }}
           />
         </div>
@@ -99,7 +99,7 @@ export function AppearanceSettings() {
             value={fontSize}
             onChange={(value: number) => {
               setFontSize(value);
-              window.ipc?.send('set-config', 'display.fontSize', value);
+              setConfigSync('display.fontSize', value);
             }}
           />
         </div>
@@ -109,7 +109,7 @@ export function AppearanceSettings() {
           selectedKey={slidingPosition}
           onSelectionChange={(value: string) => {
             setSlidingPosition(value);
-            window.ipc?.send('set-config', 'display.slidingPosition', value);
+            setConfigSync('display.slidingPosition', value);
           }}
           defaultItems={[
             { value: 'start', label: '开始' },
@@ -125,7 +125,7 @@ export function AppearanceSettings() {
           selectedKey={timeDisplay}
           onSelectionChange={(value: string) => {
             setTimeDisplay(value);
-            window.ipc?.send('set-config', 'display.timeDisplay', value);
+            setConfigSync('display.timeDisplay', value);
           }}
           defaultItems={[
             { value: 'always', label: '始终显示' },
@@ -140,7 +140,7 @@ export function AppearanceSettings() {
           selectedKey={progressDisplay}
           onSelectionChange={(value: string) => {
             setProgressDisplay(value);
-            window.ipc?.send('set-config', 'display.progressDisplay', value);
+            setConfigSync('display.progressDisplay', value);
           }}
           defaultItems={[
             { value: 'always', label: '始终显示' },
@@ -159,7 +159,7 @@ export function AppearanceSettings() {
           isSelected={useWindowBackgroundMaterial}
           onChange={() => {
             setUseWindowBackgroundMaterial(!useWindowBackgroundMaterial);
-            window.ipc?.send('set-config', 'display.useWindowBackgroundMaterial', !useWindowBackgroundMaterial);
+            setConfigSync('display.useWindowBackgroundMaterial', !useWindowBackgroundMaterial);
           }}
         />
       </SettingsItem>
@@ -174,7 +174,7 @@ export function UpgradeSettings() {
 
   useEffect(() => {
     (async () => {
-      const data = await getConfigSync('online');
+      const data = await getConfigSync('useOnlineVersion');
       data && setOnline(Boolean(data));
 
       const autoCheckData = await getConfigSync('upgrade.autoCheckUpdate');
@@ -202,7 +202,7 @@ export function UpgradeSettings() {
           isSelected={online}
           onChange={() => {
             setOnline(!online);
-            window.ipc?.send('set-config', 'online', !online);
+            setConfigSync('useOnlineVersion', !online);
           }}
         />
       </SettingsItem>
@@ -213,7 +213,7 @@ export function UpgradeSettings() {
           onChange={() => {
             const newValue = !autoCheckUpdate;
             setAutoCheckUpdate(newValue);
-            window.ipc?.send('set-config', 'upgrade.autoCheckUpdate', newValue);
+            setConfigSync('upgrade.autoCheckUpdate', newValue);
           }}
         />
       </SettingsItem>
@@ -224,7 +224,7 @@ export function UpgradeSettings() {
           onChange={() => {
             const newValue = !autoDownloadUpdate;
             setAutoDownloadUpdate(newValue);
-            window.ipc?.send('set-config', 'upgrade.autoDownloadUpdate', newValue);
+            setConfigSync('upgrade.autoDownloadUpdate', newValue);
           }}
         />
       </SettingsItem>
@@ -253,7 +253,7 @@ export function InterfaceSettings() {
           isSelected={hiddenControlBar}
           onChange={() => {
             setHiddenControlBar(!hiddenControlBar);
-            window.ipc?.send('set-config', 'display.hidden.controlBar', !hiddenControlBar);
+            setConfigSync('display.hidden.controlBar', !hiddenControlBar);
           }}
         />
       </SettingsItem>
@@ -263,7 +263,7 @@ export function InterfaceSettings() {
           isSelected={hiddenRefreshWindow}
           onChange={() => {
             setHiddenRefreshWindow(!hiddenRefreshWindow);
-            window.ipc?.send('set-config', 'display.hidden.refreshWindow', !hiddenRefreshWindow);
+            setConfigSync('display.hidden.refreshWindow', !hiddenRefreshWindow);
           }}
         />
       </SettingsItem>
