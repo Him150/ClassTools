@@ -1,21 +1,7 @@
-import { build } from 'esbuild';
 import { configDotenv } from 'dotenv';
 import workboxBuild from 'workbox-build';
-import path from 'path';
-import fs from 'fs-extra';
 
 configDotenv();
-
-await build({
-  entryPoints: ['main/builders/**/*.ts'],
-  outdir: 'build/builders',
-  bundle: false,
-  platform: 'node',
-  format: 'cjs',
-  sourcemap: true,
-  outbase: 'main/builders',
-  tsconfig: 'tsconfig.json',
-});
 
 // https://developer.chrome.com/docs/workbox/modules/workbox-build#method-generateSW
 const buildSW = () => {
@@ -45,7 +31,7 @@ const buildSW = () => {
           cacheName: 'class-tools-pages',
           networkTimeoutSeconds: 5,
           expiration: {
-            maxEntries: 200,
+            maxEntries: 500,
             maxAgeSeconds: 14 * 24 * 60 * 60,
           },
         },
@@ -55,12 +41,3 @@ const buildSW = () => {
 };
 
 buildSW();
-
-// Add Build Time
-const dirPath = path.resolve(process.cwd(), 'renderer/public/buildArtifacts');
-if (!fs.pathExistsSync(dirPath)) {
-  fs.mkdirsSync(dirPath);
-}
-fs.writeFileSync(path.resolve(dirPath, 'UIVersion'), Date.now().toString());
-
-console.log('✓ Build Success');
